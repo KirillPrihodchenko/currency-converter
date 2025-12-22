@@ -9,6 +9,13 @@ struct RedirectionInfo: View {
                 .blur(radius: 0.849)
             
             VStack {
+                
+                Text("Select a currency and see how coins are \n exchanged between Bronze, Silver, and Gold.")
+                    .font(.title3)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding(100)
+                
                 ExchangeValue(leftImage: .silver, text: "1 Silver coin = 5 Bronze coins", rightImage: .bronze);
                 
                 ExchangeValue(leftImage: .gold, text: "1 Gold coin = 5 Silver coins", rightImage: .silver);

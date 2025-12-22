@@ -7,46 +7,8 @@ struct ContentView: View {
     @State private var secondFieldAmount: String = ""
     @State private var isInfoButtonPressed: Bool = false
     @State private var isCalculationPressed: Bool = false
-    @State private var selectedCurrency: Currency? = nil
-    private let listOfCurrency: String = "Select a currency"
-    
-    enum Currency: String, CaseIterable {
-        
-        case bronze = "Bronze"
-        case silver = "Silver"
-        case gold = "Gold"
-        
-        var imageName: String {
-            switch self {
-            case .bronze:
-                return "bronze"
-            case .silver:
-                return "silver"
-            case .gold:
-                return "gold"
-            }
-        }
-    }
-    
-    private func shutdownCurrencyList() -> some View {
-        
-        Menu {
-            ForEach(Currency.allCases, id: \.self) { currency in
-                
-                Button {
-                    selectedCurrency = currency
-                }
-                label: {
-                    Label(currency.rawValue, image: currency.imageName)
-                }
-            }
-        } label: {
-            Label(
-                selectedCurrency?.rawValue ?? "Select a currency",
-                systemImage: "chevron.down")
-        }
-    }
-    
+    @State private var firstSelectedCurrency: Currency? = nil
+    @State private var secondSelectedCurrency: Currency? = nil
     
     var body: some View {
         
@@ -75,13 +37,8 @@ struct ContentView: View {
                 HStack(alignment: .center) {
                     
                     VStack {
-                        
-                        Image("bronze")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 50)
-                        Text("Bronze")
-                            .font(.title2 .bold())
+
+                        CurrencyPicker(selectedCurrency: $firstSelectedCurrency, disabled: secondSelectedCurrency)
                         
                         TextField("Enter an amount", text: $firstFieldAmount)
                             .keyboardType(.decimalPad)
@@ -98,12 +55,7 @@ struct ContentView: View {
                     
                     VStack {
                         
-                        Image("silver")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 50)
-                        Text("Silver")
-                            .font(.title2 .bold())
+                        CurrencyPicker(selectedCurrency: $secondSelectedCurrency, disabled: firstSelectedCurrency)
                         
                         TextField("Enter an amount", text: $secondFieldAmount)
                             .keyboardType(.decimalPad)
