@@ -1,9 +1,9 @@
 import Foundation
 
 enum Currency: String, CaseIterable, Equatable {
-    case bronze = "Bronze"
-    case silver = "Silver"
-    case gold = "Gold"
+    case bronze
+    case silver
+    case gold 
 
     var imageName: String {
         switch self {

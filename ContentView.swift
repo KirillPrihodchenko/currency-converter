@@ -7,8 +7,18 @@ struct ContentView: View {
     @State private var secondFieldAmount: String = ""
     @State private var isInfoButtonPressed: Bool = false
     @State private var isCalculationPressed: Bool = false
+    @State private var isClearButtonPressed: Bool = false
     @State private var firstSelectedCurrency: Currency? = nil
     @State private var secondSelectedCurrency: Currency? = nil
+    private var isButtonCalculationPressed = Calculation()
+    
+    private func resetFields() {
+        
+        firstFieldAmount = ""
+        secondFieldAmount = ""
+        firstSelectedCurrency = nil
+        secondSelectedCurrency = nil
+    }
     
     var body: some View {
         
@@ -47,11 +57,9 @@ struct ContentView: View {
                             .cornerRadius(28)
                         
                     }
-              
-                    VStack {
-                        Text("=")
-                            .font(.largeTitle .bold())
-                    }
+                    
+                    Text("=")
+                        .font(.largeTitle .bold())
                     
                     VStack {
                         
@@ -74,7 +82,12 @@ struct ContentView: View {
                 
                 HStack(spacing: 20) {
                     Button("Calculate") {
+                        guard let from = firstSelectedCurrency, let to = secondSelectedCurrency else { return }
                         
+                        let result = isButtonCalculationPressed.allCurrencyCalculation(
+                            from: from, to: to, amount: firstFieldAmount)
+                        
+                        secondFieldAmount = result
                     }
                     .frame(maxWidth: 150, maxHeight: 50, alignment: .center)
                     .font(.title .bold())
@@ -85,6 +98,7 @@ struct ContentView: View {
                  
                     Button("Clear") {
                         
+                        resetFields()
                     }
                     .frame(maxWidth: 150, maxHeight: 50)
                     .font(.title .bold())

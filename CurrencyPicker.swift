@@ -4,7 +4,7 @@ struct CurrencyPicker: View {
     
     @Binding var selectedCurrency: Currency?
     let disabled: Currency?
-
+    
     var body: some View {
         Menu {
             ForEach(Currency.allCases, id: \.self) { currency in
