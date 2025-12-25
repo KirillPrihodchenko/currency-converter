@@ -6,7 +6,6 @@ final class Calculation {
         from: Currency,
         to: Currency,
         amount: String) -> String {
-            
             guard let value = Int(amount) else { return "0" }
             
             switch (from, to) {
