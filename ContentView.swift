@@ -11,7 +11,10 @@ struct ContentView: View {
     @State private var firstSelectedCurrency: Currency? = nil
     @State private var secondSelectedCurrency: Currency? = nil
     @FocusState private var isAmountFocused: Bool
-    private var isButtonCalculationPressed = Calculation()
+    private var buttonCalculation = Calculation()
+    
+    @State private var isAlertShown: Bool = false
+    @State private var alertMessage: CurrencyInputError = .invalidAmount
     
     private func resetFields() {
         firstFieldAmount = ""
@@ -59,6 +62,7 @@ struct ContentView: View {
                         .font(.largeTitle .bold())
                     
                     VStack {
+                       
                         CurrencyPicker(selectedCurrency: $secondSelectedCurrency, disabled: firstSelectedCurrency)
                         
                         TextField("Enter an amount", text: $secondFieldAmount)
@@ -90,13 +94,23 @@ struct ContentView: View {
                 
                 HStack(spacing: 20) {
                     Button("Calculate") {
-                        guard let from = firstSelectedCurrency, let to = secondSelectedCurrency else { return }
                         
-                        let result = isButtonCalculationPressed.allCurrencyCalculation(
-                            from: from, to: to, amount: firstFieldAmount
-                        )
+                        guard let from = firstSelectedCurrency, let to = secondSelectedCurrency else {
+                            return
+                        }
+                        let result = buttonCalculation.allCurrencyCalculation(
+                                from: from,
+                                to: to,
+                                amount: firstFieldAmount,
+                                errorChecker: &isAlertShown
+                            )
+                            
+                            secondFieldAmount = result
+                    }
+                    .alert(alertMessage.localizedDescription, isPresented: $isAlertShown) {
                         
-                        secondFieldAmount = result
+                    } message: {
+                        Text(alertMessage.errorDescription)
                     }
                     .frame(maxWidth: 150, maxHeight: 50, alignment: .center)
                     .font(.title .bold())
