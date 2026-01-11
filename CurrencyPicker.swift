@@ -3,7 +3,7 @@ import SwiftUI
 struct CurrencyPicker: View {
     
     @Binding var selectedCurrency: Currency?
-    let disabled: Currency?
+    var disabled: Currency?
     
     var body: some View {
         Menu {
@@ -18,9 +18,11 @@ struct CurrencyPicker: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 24, height: 24)
+                            .disabled(true)
                         Text(currency.rawValue)
                     }
                 }
+                .disabled(currency == disabled)
             }
         } label: {
             HStack {
@@ -33,7 +35,6 @@ struct CurrencyPicker: View {
                 } else {
                     Image(systemName: "chevron.down")
                     Text("Select currency")
-                        
                 }
             }
             .background()
