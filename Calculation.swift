@@ -36,6 +36,11 @@ final class Calculation {
                     return String(value * 5)
             
                 case(.silver, .gold):
+                    guard value >= 5 else {
+                        let invalidAmount: String = CurrencyInputError.invalidAmount.localizedDescription
+                        errorChecker = true
+                        return invalidAmount
+                }
                     return String(value / 5)
                 
                 case(.gold, .silver):

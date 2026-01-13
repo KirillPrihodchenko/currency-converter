@@ -8,19 +8,32 @@ struct ContentView: View {
     @State private var isInfoButtonPressed: Bool = false
     @State private var isCalculationPressed: Bool = false
     @State private var isClearButtonPressed: Bool = false
+    @State private var isAlertShown: Bool = false
+    @State private var isSwitchFields: Bool = false
     @State private var firstSelectedCurrency: Currency? = nil
     @State private var secondSelectedCurrency: Currency? = nil
+    @State private var alertMessage: CurrencyInputError = .invalidAmount
     @FocusState private var isAmountFocused: Bool
     private var buttonCalculation = Calculation()
-    
-    @State private var isAlertShown: Bool = false
-    @State private var alertMessage: CurrencyInputError = .invalidAmount
     
     private func resetFields() {
         firstFieldAmount = ""
         secondFieldAmount = ""
         firstSelectedCurrency = nil
         secondSelectedCurrency = nil
+    }
+    
+    private func switchFields(_ firstField: inout String, _ secondField: inout String, _ firstCurrency: inout Currency?, _ secondCurrency: inout Currency?) {
+        
+        isSwitchFields = true
+        
+        let switching = firstField
+        firstField = secondField
+        secondField = switching
+        
+        let switchingCurrency = firstCurrency
+        firstCurrency = secondCurrency
+        secondCurrency = switchingCurrency
     }
     
     var body: some View {
@@ -58,11 +71,12 @@ struct ContentView: View {
                             .cornerRadius(28)
                     }
                     
-                    Text("=")
-                        .font(.largeTitle .bold())
+                    Button("⇆") {
+                        switchFields(&firstFieldAmount, &secondFieldAmount, &firstSelectedCurrency, &secondSelectedCurrency)
+                    }
+                    .font(.largeTitle .bold())
                     
                     VStack {
-                       
                         CurrencyPicker(selectedCurrency: $secondSelectedCurrency, disabled: firstSelectedCurrency)
                         
                         TextField("Enter an amount", text: $secondFieldAmount)
@@ -71,7 +85,7 @@ struct ContentView: View {
                             .background(Color(.white))
                             .foregroundStyle(Color.black)
                             .cornerRadius(28)
-                            .disabled(true)
+                            //.disabled(true)
                     }
                     .foregroundStyle(Color.primary)
                 }
@@ -83,7 +97,7 @@ struct ContentView: View {
                     }
                 }
                 .padding()
-                .frame(maxWidth: 380)
+                .frame(maxWidth: 390)
                 .foregroundColor(.primary)
                 .background(
                     Color.primary

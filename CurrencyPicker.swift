@@ -18,7 +18,6 @@ struct CurrencyPicker: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: 24, height: 24)
-                            .disabled(true)
                         Text(currency.rawValue)
                     }
                 }

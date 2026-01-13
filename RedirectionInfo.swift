@@ -8,7 +8,7 @@ struct RedirectionInfo: View {
                 .saturation(0.69)
                 .blur(radius: 0.849)
             
-            VStack {
+            LazyVStack {
                 
                 Text("Select a currency and see how coins are \n exchanged between Bronze, Silver, and Gold.")
                     .font(.title3)

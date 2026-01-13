@@ -8,7 +8,7 @@ struct ExchangeValue: View {
     
     var body: some View {
         
-        HStack() {
+        LazyHStack() {
             Image(leftImage)
                 .resizable()
                 .scaledToFit()
