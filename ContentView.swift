@@ -85,7 +85,6 @@ struct ContentView: View {
                             .background(Color(.white))
                             .foregroundStyle(Color.black)
                             .cornerRadius(28)
-                            //.disabled(true)
                     }
                     .foregroundStyle(Color.primary)
                 }
