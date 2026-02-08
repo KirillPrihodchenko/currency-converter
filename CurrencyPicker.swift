@@ -2,47 +2,49 @@ import SwiftUI
 
 struct CurrencyPicker: View {
     
-    @Binding var selectedCurrency: Currency?
-    var disabled: Currency?
+    
+    @ObservedObject var viewModel: Currency
+    @Binding var currencySelection: String?
+    var disabled: String?
+    private var sortedCurrencies: [(key: String, value: Double)] {
+        viewModel.currencies.sorted { $0.key < $1.key }
+    }
     
     var body: some View {
         Menu {
-            ForEach(Currency.allCases, id: \.self) { currency in
+            ForEach(sortedCurrencies, id: \.key) { element in
                 Button {
-                    if currency != disabled {
-                        selectedCurrency = currency
-                    }
+                    currencySelection = element.key
                 } label: {
-                    HStack {
-                        Image(currency.imageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 24, height: 24)
-                        Text(currency.rawValue)
-                    }
-                }
-                .disabled(currency == disabled)
-            }
-        } label: {
-            HStack {
-                if let selected = selectedCurrency {
-                    Image(selected.imageName)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                    Text(selected.rawValue)
-                } else {
-                    Image(systemName: "chevron.down")
-                    Text("Select currency")
+                    Text(element.key)
                 }
             }
-            .background()
-            .frame(alignment: .center)
-            .cornerRadius(8)
+            .disabled(currencySelection == disabled)
+        }label: {
+            Image(systemName: "chevron.down")
+            Text("Select currency")
         }
     }
 }
 
 #Preview {
-    CurrencyPicker(selectedCurrency: .constant(.gold), disabled: .gold)
+    
+    let mockCurrencies: [String: Double] = [
+        "USD": 1.0,
+        "EUR": 0.92,
+    ]
+    let mockViewModel = Currency()
+    mockViewModel.currencies = mockCurrencies
+
+    return PreviewWrapper(viewModel: mockViewModel)
+}
+
+    private struct PreviewWrapper: View {
+        @ObservedObject var viewModel: Currency
+        @State private var selection: String? = nil
+
+        var body: some View {
+            CurrencyPicker(viewModel: viewModel, currencySelection: $selection)
+                .padding()
+        }
 }
