@@ -18,7 +18,7 @@ extension CurrencyInputError {
             case .invalidAmount:
                 return "Should be more than current amount"
             case .incorrectCharacter:
-                return "Should be number"
+                return "Please choose another currency"
             case .errorDataFetch:
             return "Something went wrong while fetching the API"
         }

@@ -1,7 +1,7 @@
 import SwiftUI
 import Foundation
 
-struct ContentView: View {
+struct MainContentView: View {
     
     @State private var firstFieldAmount: String = ""
     @State private var secondFieldAmount: String = ""
@@ -10,11 +10,13 @@ struct ContentView: View {
     @State private var isClearButtonPressed: Bool = false
     @State private var isAlertShown: Bool = false
     @State private var isSwitchFields: Bool = false
-    @State private var firstSelectedCurrency: Currency? = nil
-    @State private var secondSelectedCurrency: Currency? = nil
+    @State private var firstSelectedCurrency: String?
+    @State private var secondSelectedCurrency: String?
     @State private var alertMessage: CurrencyInputError = .invalidAmount
     @FocusState private var isAmountFocused: Bool
+    @StateObject var currency = Currency()
     private var buttonCalculation = Calculation()
+    
     
     private func resetFields() {
         firstFieldAmount = ""
@@ -23,13 +25,9 @@ struct ContentView: View {
         secondSelectedCurrency = nil
     }
     
-    private func switchFields(_ firstField: inout String, _ secondField: inout String, _ firstCurrency: inout Currency?, _ secondCurrency: inout Currency?) {
+    private func switchFields(_ firstCurrency: inout String?, _ secondCurrency: inout String?) {
         
         isSwitchFields = true
-        
-        let switching = firstField
-        firstField = secondField
-        secondField = switching
         
         let switchingCurrency = firstCurrency
         firstCurrency = secondCurrency
@@ -52,7 +50,6 @@ struct ContentView: View {
                     
                     Text("Currency Converter")
                         .font(.largeTitle .bold())
-                        .colorInvert()
                     
                     Spacer()
                 }
@@ -60,7 +57,7 @@ struct ContentView: View {
                 
                 HStack(alignment: .center) {
                     VStack {
-                        CurrencyPicker(selectedCurrency: $firstSelectedCurrency, disabled: secondSelectedCurrency)
+                        CurrencyPicker(viewModel: currency, currencySelection: $firstSelectedCurrency, disabled: secondSelectedCurrency)
                         
                         TextField("Enter an amount", text: $firstFieldAmount)
                             .focused($isAmountFocused)
@@ -72,12 +69,12 @@ struct ContentView: View {
                     }
                     
                     Button("⇆") {
-                        switchFields(&firstFieldAmount, &secondFieldAmount, &firstSelectedCurrency, &secondSelectedCurrency)
+                      switchFields(&firstSelectedCurrency, &secondSelectedCurrency)
                     }
                     .font(.largeTitle .bold())
                     
                     VStack {
-                        CurrencyPicker(selectedCurrency: $secondSelectedCurrency, disabled: firstSelectedCurrency)
+                        CurrencyPicker(viewModel: currency, currencySelection: $secondSelectedCurrency, disabled: firstSelectedCurrency)
                         
                         TextField("Enter an amount", text: $secondFieldAmount)
                             .keyboardType(.decimalPad)
@@ -85,6 +82,7 @@ struct ContentView: View {
                             .background(Color(.white))
                             .foregroundStyle(Color.black)
                             .cornerRadius(28)
+                            .disabled(true)
                     }
                     .foregroundStyle(Color.primary)
                 }
@@ -109,16 +107,19 @@ struct ContentView: View {
                     Button("Calculate") {
                         
                         guard let from = firstSelectedCurrency, let to = secondSelectedCurrency else {
+                            alertMessage = CurrencyInputError.incorrectCharacter
+                            isAlertShown = true
                             return
                         }
+                        
                         let result = buttonCalculation.allCurrencyCalculation(
-                                from: from,
-                                to: to,
-                                amount: firstFieldAmount,
-                                errorChecker: &isAlertShown
-                            )
-                            
-                            secondFieldAmount = result
+                            currencies: currency.currencies,
+                            from: from,
+                            to: to,
+                            amount: firstFieldAmount)
+                        
+                        secondFieldAmount = result as! String
+                        
                     }
                     .alert(alertMessage.localizedDescription, isPresented: $isAlertShown) {
                         
@@ -146,6 +147,17 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity)
                 .offset(y: 180)
                 
+                Button("Fetch") {
+                    currency.fetchData()
+                }
+                .frame(maxWidth: 150, maxHeight: 50, alignment: .center)
+                .font(.title .bold())
+                .foregroundColor(.black)
+                .background(Color(.white))
+                .cornerRadius(28)
+                .opacity(0.8)
+                .position(x: 375, y: 800)
+                
                 Button("?") {
                     isInfoButtonPressed = true
                 }
@@ -165,5 +177,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    MainContentView()
 }

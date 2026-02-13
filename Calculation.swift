@@ -3,54 +3,33 @@ import Foundation
 final class Calculation {
         
     func allCurrencyCalculation(
-        from: Currency,
-        to: Currency,
-        amount: String,
-        errorChecker: inout Bool) -> String {
+        currencies: [String: Double],
+        from: String,
+        to: String,
+        amount: String) -> Any {
             
-            guard let value = Int(amount) else {
-                let noEnteredAmount: String = CurrencyInputError.incorrectCharacter.localizedDescription
-                errorChecker = true
-                
-                return noEnteredAmount
-            }
+            let extendedCurrenciesKey = Array(currencies.keys)
+            let extendedValueFrom = currencies[from] ?? 0
+            let extendedValueTo = currencies[to] ?? 0
+            let convertedAmount: Double = Double(amount) ?? 0
+            var result = 0.0
             
-            switch (from, to) {
-                case(.bronze, .silver):
-                    guard value >= 5 else {
-                        let invalidAmount: String = CurrencyInputError.invalidAmount.localizedDescription
-                        errorChecker = true
-                        return invalidAmount
-                    }
-                    return String(value / 5)
+            for (_, value) in extendedCurrenciesKey.enumerated() {
                 
-                case(.bronze, .gold):
-                    guard value >= 25 else {
-                        let invalidAmount: String = CurrencyInputError.invalidAmount.localizedDescription
-                        errorChecker = true
-                        return invalidAmount
+                if amount.contains("-") {
+                    return CurrencyInputError.invalidAmount.localizedDescription
                 }
-                    return String(value / 25)
                 
-                case(.silver, .bronze):
-                    return String(value * 5)
-            
-                case(.silver, .gold):
-                    guard value >= 5 else {
-                        let invalidAmount: String = CurrencyInputError.invalidAmount.localizedDescription
-                        errorChecker = true
-                        return invalidAmount
+                guard value.contains(from) && value.contains(to) && extendedValueTo <= 1 else {
+                    result = convertedAmount / extendedValueFrom
+                    result *= extendedValueTo
+                    return String(result)
                 }
-                    return String(value / 5)
                 
-                case(.gold, .silver):
-                    return String(value * 5)
-                
-                case(.gold, .bronze):
-                    return String(value * 25)
-                
-                default:
-                    return ""
-            }
+                result = convertedAmount / extendedValueFrom
+                result /= extendedValueTo
+                return String(result)
+        }
+            return CurrencyInputError.invalidAmount.localizedDescription
     }
 }

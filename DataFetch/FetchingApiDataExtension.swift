@@ -7,6 +7,7 @@ extension URLSession {
         self.dataTask(with: url) { data, _, error in
             if let errorData = error {
                 completion(.failure(errorData))
+                return
         }
         
         guard let data = data else {
@@ -15,9 +16,13 @@ extension URLSession {
             
         do {
             let dataFetch = try JSONDecoder().decode(CurrencyResponse.self, from: data)
-            completion(.success(dataFetch))
+            DispatchQueue.main.async {
+                completion(.success(dataFetch))
+            }
         } catch let decoderError {
-            completion(.failure(decoderError))
+            DispatchQueue.main.async {
+                completion(.failure(decoderError))
+            }
         }
     }.resume()
   }
