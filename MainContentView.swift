@@ -112,6 +112,12 @@ struct MainContentView: View {
                             return
                         }
                         
+                        guard !firstFieldAmount.contains("-") else {
+                            alertMessage = CurrencyInputError.negativeAmount
+                            isAlertShown = true
+                            return
+                        }
+                        
                         let result = buttonCalculation.allCurrencyCalculation(
                             currencies: currency.currencies,
                             from: from,
