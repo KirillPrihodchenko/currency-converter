@@ -7,4 +7,5 @@ enum CurrencyInputError: Error, LocalizedError {
     case incorrectCharacter
     case errorDataFetch
     case negativeAmount
+    case invalidCurrencyCode
 }

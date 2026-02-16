@@ -12,6 +12,8 @@ extension CurrencyInputError {
             return "Error data fetch"
         case .negativeAmount:
             return "Negative amount"
+        case .invalidCurrencyCode:
+            return "Invalid currency code"
         }
     }
     
@@ -25,6 +27,8 @@ extension CurrencyInputError {
                 return "Something went wrong while fetching the API"
             case .negativeAmount:
                 return "Should be more than current amount"
+            case .invalidCurrencyCode:
+            return "Currency with this code may not exists"
         }
     }
 }

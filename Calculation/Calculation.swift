@@ -21,15 +21,13 @@ final class Calculation {
                 }
                 
                 guard value.contains(from) && value.contains(to) && extendedValueTo <= 1 else {
-                    result = convertedAmount / extendedValueFrom
-                    result *= extendedValueTo
+                    result = convertedAmount / extendedValueFrom * extendedValueTo
                     return String(result)
                 }
                 
-                result = convertedAmount / extendedValueFrom
-                result /= extendedValueTo
+                result = convertedAmount / extendedValueFrom / extendedValueTo
                 return String(result)
         }
-            return CurrencyInputError.invalidAmount.localizedDescription
+            return CurrencyInputError.invalidCurrencyCode.localizedDescription
     }
 }

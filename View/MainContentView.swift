@@ -25,7 +25,7 @@ struct MainContentView: View {
         secondSelectedCurrency = nil
     }
     
-    private func switchFields(_ firstCurrency: inout String?, _ secondCurrency: inout String?) {
+    private func switchCurrencies(_ firstCurrency: inout String?, _ secondCurrency: inout String?) {
         
         isSwitchFields = true
         
@@ -69,7 +69,7 @@ struct MainContentView: View {
                     }
                     
                     Button("⇆") {
-                      switchFields(&firstSelectedCurrency, &secondSelectedCurrency)
+                      switchCurrencies(&firstSelectedCurrency, &secondSelectedCurrency)
                     }
                     .font(.largeTitle .bold())
                     
