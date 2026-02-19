@@ -3,28 +3,28 @@ import Testing
 
 struct CalculationTests {
 
-    let calculation = Calculation()
-    let mockCurrencies = ["USD": 1.0, "EUR": 0.85]
+    private let calculation = Calculation()
+    private let mockCurrencies = ["USD": 1.0, "EUR": 0.85]
     
-    @Test func convert_to_currency_with_rate_less_than_one() async throws {
+    @Test func convertToCurrencyWithRateLessThanOne() async throws {
         
         #expect(calculation.allCurrencyCalculation(
             currencies: mockCurrencies,
             from: "USD",
             to: "EUR",
-            amount: "1000") as! String == "850.0")
+            amount: "1000") as! String == "850.0000")
     }
     
-    @Test func convert_to_currency_with_rate_greater_than_one() async throws {
+    @Test func convertToCurrencyWithRateGreaterThanOne() async throws {
         
         #expect(calculation.allCurrencyCalculation(
             currencies: mockCurrencies,
             from: "EUR",
             to: "USD",
-            amount: "1000") as! String == "1176.4705882352941")
+            amount: "1000") as! String == "1176.4706")
     }
     
-    @Test func convert_with_negative_amount() async throws {
+    @Test func convertWithNegativeAmount() async throws {
         
         #expect(calculation.allCurrencyCalculation(
             currencies: mockCurrencies,
@@ -34,7 +34,7 @@ struct CalculationTests {
     }
     
     // this test expect 'inf' because of value <from> or <to> is Double? currencies[from] ?? 0
-    @Test func convert_with_invalid_currency() async throws {
+    @Test func convertWithInvalidCurrency() async throws {
     
         #expect(calculation.allCurrencyCalculation(
             currencies: mockCurrencies,

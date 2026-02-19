@@ -5,7 +5,7 @@ extension CurrencyInputError {
     var localizedDescription: String {
         switch self {
         case .invalidAmount:
-            return "Invalid Amount"
+            return "Invalid amount"
         case .incorrectCharacter:
             return "Incorrect character"
         case .errorDataFetch:
@@ -22,7 +22,7 @@ extension CurrencyInputError {
             case .invalidAmount:
                 return "Should be more than current amount"
             case .incorrectCharacter:
-                return "Please choose another currency"
+                return "Please make sure you are entering the correct characters or try to convert to another currency"
             case .errorDataFetch:
                 return "Something went wrong while fetching the API"
             case .negativeAmount:

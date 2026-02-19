@@ -31,6 +31,7 @@ struct CurrencyPicker: View {
                 }
             }
         }
+        .accessibilityIdentifier("currencySelection")
     }
 }   
 
@@ -48,7 +49,7 @@ struct CurrencyPicker: View {
 
     private struct PreviewWrapper: View {
         @ObservedObject var viewModel: Currency
-        @State private var selection: String? = ""
+        @State private var selection: String? = "Select currency"
 
         var body: some View {
             CurrencyPicker(viewModel: viewModel, currencySelection: $selection, disabled: selection)

@@ -22,11 +22,11 @@ final class Calculation {
                 
                 guard value.contains(from) && value.contains(to) && extendedValueTo <= 1 else {
                     result = convertedAmount / extendedValueFrom * extendedValueTo
-                    return String(result)
+                    return String(format: "%0.4f", result)
                 }
                 
                 result = convertedAmount / extendedValueFrom / extendedValueTo
-                return String(result)
+                return String(format: "%0.4f", result)
         }
             return CurrencyInputError.invalidCurrencyCode.localizedDescription
     }

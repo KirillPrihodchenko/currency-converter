@@ -11,7 +11,7 @@ extension URLSession {
         }
         
         guard let data = data else {
-                return
+            return
         }
             
         do {

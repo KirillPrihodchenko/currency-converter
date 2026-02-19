@@ -76,7 +76,7 @@ struct MainContentView: View {
                     VStack {
                         CurrencyPicker(viewModel: currency, currencySelection: $secondSelectedCurrency, disabled: firstSelectedCurrency)
                         
-                        TextField("Enter an amount", text: $secondFieldAmount)
+                        TextField("", text: $secondFieldAmount)
                             .keyboardType(.decimalPad)
                             .frame(width: 150, height: 30)
                             .background(Color(.white))
