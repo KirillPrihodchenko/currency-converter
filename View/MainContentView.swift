@@ -15,8 +15,9 @@ struct MainContentView: View {
     @State private var alertMessage: CurrencyInputError = .invalidAmount
     @FocusState private var isAmountFocused: Bool
     @StateObject var currency = Currency()
+    @State var selected: NavigationMenuDecription = .account
+    @State private var selectedButton: NavigationMenuDecription = .converter
     private var buttonCalculation = Calculation()
-    
     
     private func resetFields() {
         firstFieldAmount = ""
@@ -35,7 +36,6 @@ struct MainContentView: View {
     }
     
     var body: some View {
-        NavigationStack {
             ZStack {
                 Image("background")
                     .saturation(0.69)
@@ -69,7 +69,7 @@ struct MainContentView: View {
                     }
                     
                     Button("⇆") {
-                      switchCurrencies(&firstSelectedCurrency, &secondSelectedCurrency)
+                        switchCurrencies(&firstSelectedCurrency, &secondSelectedCurrency)
                     }
                     .font(.largeTitle .bold())
                     
@@ -100,87 +100,75 @@ struct MainContentView: View {
                     Color.primary
                         .colorInvert()
                         .opacity(0.55)
-                        .cornerRadius(28)
-                )
+                        .cornerRadius(28))
                 
-                HStack(spacing: 20) {
-                    Button("Calculate") {
-                        
-                        guard let from = firstSelectedCurrency, let to = secondSelectedCurrency else {
-                            alertMessage = CurrencyInputError.incorrectCharacter
-                            isAlertShown = true
-                            return
+                VStack(spacing: 20) {
+                    HStack(spacing: 20) {
+                        Button("Calculate") {
+                            
+                            guard let from = firstSelectedCurrency, let to = secondSelectedCurrency else {
+                                alertMessage = CurrencyInputError.incorrectCharacter
+                                isAlertShown = true
+                                return
+                            }
+                            
+                            guard !firstFieldAmount.contains("-") else {
+                                alertMessage = CurrencyInputError.negativeAmount
+                                isAlertShown = true
+                                return
+                            }
+                            
+                            let result = buttonCalculation.allCurrencyCalculation(
+                                currencies: currency.currencies,
+                                from: from,
+                                to: to,
+                                amount: firstFieldAmount)
+                            
+                            secondFieldAmount = result as! String
+                            
                         }
-                        
-                        guard !firstFieldAmount.contains("-") else {
-                            alertMessage = CurrencyInputError.negativeAmount
-                            isAlertShown = true
-                            return
+                        .alert(alertMessage.localizedDescription, isPresented: $isAlertShown) {
+                            
+                        } message: {
+                            Text(alertMessage.errorDescription)
                         }
+                        .frame(maxWidth: 150, maxHeight: 50, alignment: .center)
+                        .font(.title .bold())
+                        .foregroundColor(.black)
+                        .background(Color(.white))
+                        .cornerRadius(28)
+                        .opacity(0.8)
+                        .offset(x: 87.5)
                         
-                        let result = buttonCalculation.allCurrencyCalculation(
-                            currencies: currency.currencies,
-                            from: from,
-                            to: to,
-                            amount: firstFieldAmount)
+                        Button("Clear") {
+                            resetFields()
+                        }
+                        .frame(maxWidth: 150, maxHeight: 50)
+                        .font(.title .bold())
+                        .foregroundColor(.red)
+                        .background(Color(.white))
+                        .cornerRadius(28)
+                        .opacity(0.8)
+                        .offset(x: 87.5)
                         
-                        secondFieldAmount = result as! String
-                        
+                        Button("Fetch") {
+                            currency.fetchData()
+                        }
+                        .frame(maxWidth: 150, maxHeight: 50)
+                        .font(.title .bold())
+                        .foregroundColor(.black)
+                        .background(Color(.white))
+                        .cornerRadius(28)
+                        .opacity(0.8)
+                        .offset(x:-160, y: 70)
                     }
-                    .alert(alertMessage.localizedDescription, isPresented: $isAlertShown) {
-                        
-                    } message: {
-                        Text(alertMessage.errorDescription)
-                    }
-                    .frame(maxWidth: 150, maxHeight: 50, alignment: .center)
-                    .font(.title .bold())
-                    .foregroundColor(.black)
-                    .background(Color(.white))
-                    .cornerRadius(28)
-                    .opacity(0.8)
-                    
-                    Button("Clear") {
-                        resetFields()
-                    }
-                    .frame(maxWidth: 150, maxHeight: 50)
-                    .font(.title .bold())
-                    .foregroundColor(.red)
-                    .background(Color(.white))
-                    .cornerRadius(28)
-                    .opacity(0.8)
                 }
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .offset(y: 180)
-                
-                Button("Fetch") {
-                    currency.fetchData()
-                }
-                .frame(maxWidth: 150, maxHeight: 50, alignment: .center)
-                .font(.title .bold())
-                .foregroundColor(.black)
-                .background(Color(.white))
-                .cornerRadius(28)
-                .opacity(0.8)
-                .position(x: 375, y: 800)
-                
-                Button("?") {
-                    isInfoButtonPressed = true
-                }
-                .frame(maxWidth: 40, maxHeight: 40, alignment: .center)
-                .font(.title2 .bold())
-                .foregroundColor(.black)
-                .background(Color(.white))
-                .opacity(0.55)
-                .cornerRadius(60)
-                .position(x: 530, y: 920)
-                .navigationDestination(isPresented: $isInfoButtonPressed) {
-                    RedirectionInfo()
-                }
             }
         }
     }
-}
 
 #Preview {
     MainContentView()
