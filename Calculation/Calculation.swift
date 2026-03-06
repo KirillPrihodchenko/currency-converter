@@ -26,7 +26,7 @@ final class Calculation {
                 }
                 
                 result = convertedAmount / extendedValueFrom / extendedValueTo
-                return String(format: "%0.4f", result)
+                return String(format: "%0.4f",result)
         }
             return CurrencyInputError.invalidCurrencyCode.localizedDescription
     }

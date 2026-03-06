@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="24512" systemVersion="25D125" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="TransactionRecord" representedClassName="TransactionRecord" syncable="YES" codeGenerationType="class">
+        <attribute name="amount" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="currencyFrom" optional="YES" attributeType="String"/>
+        <attribute name="currencyTo" optional="YES" attributeType="String"/>
+        <attribute name="result" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="status" optional="YES" attributeType="String"/>
+        <relationship name="userId" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="userId" inverseEntity="User"/>
+    </entity>
+    <entity name="User" representedClassName="User" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="lastLogin" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="password" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
+        <relationship name="userId" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TransactionRecord" inverseName="userId" inverseEntity="TransactionRecord"/>
+    </entity>
+</model>

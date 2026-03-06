@@ -10,8 +10,8 @@ extension CurrencyInputError {
             return "Incorrect character"
         case .errorDataFetch:
             return "Error data fetch"
-        case .negativeAmount:
-            return "Negative amount"
+        case .incorrectAmount:
+            return "Incorrect amount"
         case .invalidCurrencyCode:
             return "Invalid currency code"
         }
@@ -25,7 +25,7 @@ extension CurrencyInputError {
                 return "Please make sure you are entering the correct characters or try to convert to another currency"
             case .errorDataFetch:
                 return "Something went wrong while fetching the API"
-            case .negativeAmount:
+            case .incorrectAmount:
                 return "Should be more than current amount"
             case .invalidCurrencyCode:
             return "Currency with this code may not exists"

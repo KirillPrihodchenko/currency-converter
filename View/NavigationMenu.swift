@@ -1,9 +1,11 @@
 import SwiftUI
+internal import CoreData
 
 struct NavigationMenu: View {
     
     @State private var selectedButton: NavigationMenuDecription = .converter
-        
+    private var txRecordManagerVM = TransactionRecordManager(context: PersistenceController.shared.container.viewContext)
+    
         var body: some View {
             VStack(spacing: -80) {
                 Group {
@@ -14,11 +16,11 @@ struct NavigationMenu: View {
                         }
                     case .converter:
                         NavigationStack {
-                            MainContentView()
+                            TransferView()
                         }
                     case .history:
                         NavigationStack {
-                            HistoryView()
+                            HistoryView(txRecordManagerVM: txRecordManagerVM)
                         }
                     case .info:
                         NavigationStack {
