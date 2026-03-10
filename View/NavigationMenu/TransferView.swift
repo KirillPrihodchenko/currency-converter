@@ -2,20 +2,6 @@ import SwiftUI
 internal import CoreData
 import Foundation
 
-enum transactionStatus: String, Codable {
-    case failed
-    case successful
-    
-    var transactionStatusDescription: String {
-        switch self {
-        case .failed:
-            return "Failed"
-        case .successful:
-            return "Success"
-        }
-    }
-}
-
 struct TransferView: View {
     
     private let txRecordManagerVM: TransactionRecordManager
@@ -26,7 +12,7 @@ struct TransferView: View {
     @State private var isInfoButtonPressed: Bool = false
     @State private var isCalculationPressed: Bool = false
     @State private var isClearButtonPressed: Bool = false
-    @State private var isAlertShown: Bool = false
+    @State private var calculationAlert: Bool = false
     @State private var isSwitchFields: Bool = false
     @State private var firstSelectedCurrency: String?
     @State private var secondSelectedCurrency: String?
@@ -35,6 +21,8 @@ struct TransferView: View {
     @StateObject var currency = Currency()
     @State var selected: NavigationMenuDecription = .account
     @State private var selectedButton: NavigationMenuDecription = .converter
+    @State private var alertAttention: AlertAttention = .clarify
+    @State private var clearAlert: Bool = false
     private var buttonCalculation = Calculation()
     
     init() {
@@ -134,13 +122,13 @@ struct TransferView: View {
                             
                             guard let from = firstSelectedCurrency, let to = secondSelectedCurrency else {
                                 alertMessage = CurrencyInputError.incorrectCharacter
-                                isAlertShown = true
+                                calculationAlert = true
                                 return
                             }
                             
                             guard !firstFieldAmount.isEmpty && !firstFieldAmount.contains("-") else {
                                 alertMessage = CurrencyInputError.incorrectAmount
-                                isAlertShown = true
+                                calculationAlert = true
                                 return
                             }
                             
@@ -149,11 +137,10 @@ struct TransferView: View {
                                 from: from,
                                 to: to,
                                 amount: firstFieldAmount)
-                            
+                   
                             secondFieldAmount = result as! String
                             
                             let user = userManagerVM.readUserOrAnonymous("")
-                                
                             if let user = user {
                             if let record = txRecordManagerVM.createTransactionRecord(currencyFrom: from,
                                                                                       currencyTo: to,
@@ -165,7 +152,7 @@ struct TransferView: View {
                                 }
                             }
                         }
-                        .alert(alertMessage.localizedDescription, isPresented: $isAlertShown) {
+                        .alert(alertMessage.localizedDescription, isPresented: $calculationAlert) {
                             
                         } message: {
                             Text(alertMessage.errorDescription)
@@ -179,12 +166,24 @@ struct TransferView: View {
                         .offset(x: 87.5)
                         
                         Button("Clear") {
-                            resetFields()
+                            clearAlert.toggle()
+                        }
+                        .alert(alertAttention.header,
+                                isPresented: $clearAlert,
+                                presenting: alertAttention) {alertAttention in
+                            
+                            Button("Cancel", role: .cancel) { }.foregroundStyle(Color(.red))
+                            Button("Confirm", role: .confirm) {
+                                resetFields()
+                            }
+                            
+                        } message: {_ in
+                            Text(alertAttention.description)
                         }
                         .frame(maxWidth: 150, maxHeight: 50)
                         .font(.title .bold())
-                        .foregroundColor(.red)
-                        .background(Color(.white))
+                        .foregroundColor(.white)
+                        .background(Color(.red))
                         .cornerRadius(28)
                         .opacity(0.8)
                         .offset(x: 87.5)
