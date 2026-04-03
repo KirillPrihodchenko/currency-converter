@@ -1,22 +1,30 @@
 import Foundation
 import SwiftUI
+internal import CoreData
 
 
 struct LoginView: View {
     
-    @State private var loginEmailField: String = ""
+    @State private var loginIdentifierField: String = ""
     @State private var loginPasswordField: String = ""
-    @State private var loginClicked: Bool = false
     @State private var signupClicked: Bool = false
+    @State private var resetPasswordClicked: Bool = false
     @FocusState private var loginEmailSelectedField: Bool
     @FocusState private var loginPasswordSelectedField: Bool
+    private let userManagerVM: UserManager
+    @State private var loginWithCorrectCredentials: Bool = false
+    
+    init() {
+        let context = PersistenceController.shared.container.viewContext
+        userManagerVM = UserManager(context: context)
+    }
     
     private var chatMessageIsValid: Bool {
-        return !loginEmailField.isEmpty && loginEmailField.count > 4
+        return !loginIdentifierField.isEmpty && loginIdentifierField.count > 4
     }
     
     private var emailFieldIsValid: Bool {
-        return !loginEmailField.isEmpty && loginEmailField.count <= 4
+        return !loginIdentifierField.isEmpty && loginIdentifierField.count < 5
     }
     
     private var changingButtonColor: Color {
@@ -54,7 +62,7 @@ struct LoginView: View {
                             .font(.title)
                             .foregroundStyle(Color.white)
                         
-                        TextField("Username or Email*", text: $loginEmailField)
+                        TextField("Username or Email*", text: $loginIdentifierField)
                             .padding(.leading)
                             .keyboardType(.emailAddress)
                             .frame(width: 250, height: 40)
@@ -94,15 +102,20 @@ struct LoginView: View {
                                 .font(.system(size: 14))
                                 .transition(.opacity)
                             Button("Reset") {
-                                
-                            }.font(.system(size: 14))
+                                resetPasswordClicked.toggle()
+                            }
+                            .font(.system(size: 14))
+                            .fullScreenCover(isPresented: $resetPasswordClicked) {
+                                ResetPassword()
+                            }
                         }
                         .padding(.leading, -55)
                         
                         Button("Log In") {
                             
-                            loginClicked.toggle()
-                            
+                            if userManagerVM.readUserByCredentials(loginIdentifierField, loginPasswordField) {
+                                loginWithCorrectCredentials.toggle()
+                            }
                         }
                         .frame(maxWidth: 250, maxHeight: 40)
                         .foregroundStyle(Color.white)
@@ -110,6 +123,9 @@ struct LoginView: View {
                         .cornerRadius(50)
                         .padding(.top, 30)
                         .disabled(!chatMessageIsValid)
+                        .fullScreenCover(isPresented: $loginWithCorrectCredentials) {
+                            NavigationMenu()
+                        }
                         
                         Button() {
                             

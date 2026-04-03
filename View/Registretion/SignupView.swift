@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+internal import CoreData
 
 struct SignupView: View {
     
@@ -13,9 +14,29 @@ struct SignupView: View {
     @FocusState private var signupUsernmaeSelectedField: Bool
     @FocusState private var signupPasswordSelectedField: Bool
     @FocusState private var signupPasswordConfirmSelectedField: Bool
+    private let userManagerVM: UserManager
+    @State private var signupErrorAlert: Bool = false
+    @State private var userAlreadyExists: CurrencyInputError = .userAlreadyExists
+    
+    init() {
+        let context = PersistenceController.shared.container.viewContext
+        userManagerVM = UserManager(context: context)
+    }
+    
+    private func resetFields() {
+        signupEmailField = ""
+        signupUsernameField = ""
+        signupPasswordField = ""
+        signupConfirmPasswordField = ""
+    }
     
     private var fullFormIsValid: Bool {
-        return !signupEmailField.isEmpty && signupEmailField.contains("@") && signupEmailField.count > 4 && !signupPasswordField.isEmpty && !signupConfirmPasswordField.isEmpty && signupPasswordField.elementsEqual(signupConfirmPasswordField)
+        return !signupEmailField.isEmpty &&
+               signupEmailField.contains("@") &&
+               signupEmailField.count > 4 &&
+               !signupPasswordField.isEmpty &&
+               !signupConfirmPasswordField.isEmpty &&
+               signupPasswordField.elementsEqual(signupConfirmPasswordField)
     }
     
     private var usernameFieldIsValid: Bool {
@@ -47,9 +68,8 @@ struct SignupView: View {
                 }
                 .foregroundStyle(Color.white)
                 .frame(alignment: .leadingFirstTextBaseline)
-                .padding(.bottom, 780)
+                .padding(.bottom, 720)
                 .padding(.leading, -100)
-                
                 
                 HStack() {
                     VStack(alignment: .center) {
@@ -124,8 +144,22 @@ struct SignupView: View {
                         
                         Button("Sign up") {
                             
-                            signupButtonClicked.toggle()
+                            if userManagerVM.userWithEmailAlreadyExist(signupEmailField) {
+                                signupErrorAlert.toggle()
+                                
+                            }
+                            else {
+                                userManagerVM.createUser(email: signupEmailField,
+                                                         username: signupUsernameField,
+                                                         password: signupPasswordField,
+                                                         createdAt: Date())
+                                signupButtonClicked.toggle()
+                            }
+                        }
+                        .alert(userAlreadyExists.localizedDescription, isPresented: $signupErrorAlert) {
                             
+                        } message: {
+                            Text(userAlreadyExists.errorDescription)
                         }
                         .frame(maxWidth: 250, maxHeight: 40)
                         .foregroundStyle(Color.white)
@@ -133,6 +167,9 @@ struct SignupView: View {
                         .cornerRadius(50)
                         .padding(.top, 30)
                         .disabled(!fullFormIsValid)
+                        .fullScreenCover(isPresented: $signupButtonClicked) {
+                            LoginView()
+                        }
                         
                         Button() {
                             
