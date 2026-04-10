@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 internal import CoreData
 
-
 struct LoginView: View {
     
     @State private var loginIdentifierField: String = ""
@@ -13,26 +12,30 @@ struct LoginView: View {
     @FocusState private var loginPasswordSelectedField: Bool
     private let userManagerVM: UserManager
     @State private var loginWithCorrectCredentials: Bool = false
+    @State private var userNotFound: CurrencyInputError = .userNotFound
+    @State private var loginErrorAlert: Bool = false
+    
     
     init() {
         let context = PersistenceController.shared.container.viewContext
         userManagerVM = UserManager(context: context)
     }
     
-    private var chatMessageIsValid: Bool {
-        return !loginIdentifierField.isEmpty && loginIdentifierField.count > 4
+    private var loginCredentialsAreValid: Bool {
+        return loginIdentifierField.count > 4 &&
+                !loginPasswordField.isEmpty
     }
     
-    private var emailFieldIsValid: Bool {
-        return !loginIdentifierField.isEmpty && loginIdentifierField.count < 5
+    private var identifierdFieldIsValid: Bool {
+        return loginIdentifierField.count < 5
     }
     
     private var changingButtonColor: Color {
-        return chatMessageIsValid ? Color.blue : Color.gray
+        return loginCredentialsAreValid ? Color.blue : Color.gray
     }
     
     private var additionalTextFieldWarning: String {
-        while emailFieldIsValid {
+        while identifierdFieldIsValid {
             return "Must be more than 4 characters."
         }
         return ""
@@ -113,16 +116,30 @@ struct LoginView: View {
                         
                         Button("Log In") {
                             
-                            if userManagerVM.readUserByCredentials(loginIdentifierField, loginPasswordField) {
-                                loginWithCorrectCredentials.toggle()
+                            guard userManagerVM.userWithEmailAlreadyExist(loginIdentifierField) ||
+                                    userManagerVM.userWithUsernameAlreadyExist(loginIdentifierField) else {
+                            
+                                loginErrorAlert = true
+                                return
                             }
+                                
+                                if let _ = userManagerVM.readUserByCredentials(loginIdentifierField, loginPasswordField) {
+                                    loginWithCorrectCredentials = true
+                                    print("login succesfull")
+                                }
+                        }
+                        .alert(userNotFound.localizedDescription,
+                               isPresented: $loginErrorAlert) {
+                            
+                        } message: {
+                            Text(userNotFound.errorDescription)
                         }
                         .frame(maxWidth: 250, maxHeight: 40)
                         .foregroundStyle(Color.white)
                         .background(changingButtonColor)
                         .cornerRadius(50)
                         .padding(.top, 30)
-                        .disabled(!chatMessageIsValid)
+                        .disabled(!loginCredentialsAreValid)
                         .fullScreenCover(isPresented: $loginWithCorrectCredentials) {
                             NavigationMenu()
                         }
@@ -192,6 +209,7 @@ struct LoginView: View {
                             Text("Author")
                                 .foregroundStyle(.white)
                                 .font(.system(size: 15))
+                            
                         }
                     }
                 }

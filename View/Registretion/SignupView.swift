@@ -16,7 +16,7 @@ struct SignupView: View {
     @FocusState private var signupPasswordConfirmSelectedField: Bool
     private let userManagerVM: UserManager
     @State private var signupErrorAlert: Bool = false
-    @State private var userAlreadyExists: CurrencyInputError = .userAlreadyExists
+    @State private var userAlreadyExists: CurrencyInputError = .userEmailExists
     
     init() {
         let context = PersistenceController.shared.container.viewContext
@@ -31,16 +31,15 @@ struct SignupView: View {
     }
     
     private var fullFormIsValid: Bool {
-        return !signupEmailField.isEmpty &&
+        return signupEmailField.count > 4 &&
                signupEmailField.contains("@") &&
-               signupEmailField.count > 4 &&
                !signupPasswordField.isEmpty &&
                !signupConfirmPasswordField.isEmpty &&
                signupPasswordField.elementsEqual(signupConfirmPasswordField)
     }
     
     private var usernameFieldIsValid: Bool {
-        return !signupUsernameField.isEmpty && signupUsernameField.count < 5
+        return signupUsernameField.count < 5
     }
     
     private var changingButtonColor: Color {
@@ -144,19 +143,27 @@ struct SignupView: View {
                         
                         Button("Sign up") {
                             
-                            if userManagerVM.userWithEmailAlreadyExist(signupEmailField) {
-                                signupErrorAlert.toggle()
-                                
+                            guard !userManagerVM.userWithEmailAlreadyExist(signupEmailField) else {
+                                userAlreadyExists = CurrencyInputError.userEmailExists
+                                signupErrorAlert = true
+                                return
                             }
-                            else {
-                                userManagerVM.createUser(email: signupEmailField,
-                                                         username: signupUsernameField,
-                                                         password: signupPasswordField,
-                                                         createdAt: Date())
-                                signupButtonClicked.toggle()
+                            guard !userManagerVM.userWithUsernameAlreadyExist(signupUsernameField) else {
+                                userAlreadyExists = CurrencyInputError.userUsernameExists
+                                signupErrorAlert = true
+                                return
                             }
+                            
+                            let newUser = userManagerVM.createUser(email: signupEmailField,
+                                                    username: signupUsernameField,
+                                                    password: signupPasswordField,
+                                                    createdAt: Date())
+                            signupButtonClicked = true
+                            print("signup succesfull")
+                            
                         }
-                        .alert(userAlreadyExists.localizedDescription, isPresented: $signupErrorAlert) {
+                        .alert(userAlreadyExists.localizedDescription,
+                               isPresented: $signupErrorAlert) {
                             
                         } message: {
                             Text(userAlreadyExists.errorDescription)

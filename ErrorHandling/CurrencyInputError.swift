@@ -8,4 +8,7 @@ enum CurrencyInputError: Error, LocalizedError {
     case errorDataFetch
     case incorrectAmount
     case invalidCurrencyCode
+    case userEmailExists
+    case userUsernameExists
+    case userNotFound
 }
