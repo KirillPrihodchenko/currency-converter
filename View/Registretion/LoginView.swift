@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 internal import CoreData
 
-struct LoginView: View {
+struct LoginView: View, AuthenticationViewModel {
     
     @State private var loginIdentifierField: String = ""
     @State private var loginPasswordField: String = ""
@@ -30,11 +30,11 @@ struct LoginView: View {
         return loginIdentifierField.count < 5
     }
     
-    private var changingButtonColor: Color {
+    internal var changingButtonColor: Color {
         return loginCredentialsAreValid ? Color.blue : Color.gray
     }
     
-    private var additionalTextFieldWarning: String {
+    internal var additionalTextFieldWarning: String {
         while identifierdFieldIsValid {
             return "Must be more than 4 characters."
         }
@@ -56,7 +56,6 @@ struct LoginView: View {
                 .frame(alignment: .leadingFirstTextBaseline)
                 .padding(.bottom, 720)
                 .padding(.leading, -100)
-                
                 
                 HStack() {
                     VStack(alignment: .center) {

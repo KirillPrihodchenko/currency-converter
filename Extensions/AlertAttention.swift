@@ -3,10 +3,13 @@ import Foundation
 enum AlertAttention: String, CaseIterable {
     
     case clarify
+    case signout
     
     public var header: String {
         switch self {
         case .clarify:
+            return "Are you sure?"
+        case .signout:
             return "Are you sure?"
         }
     }
@@ -18,6 +21,8 @@ extension AlertAttention {
         switch self {
         case .clarify:
             return "Are you sure you want to clear text fields and currenccies?"
+        case .signout:
+            return "Are you sure you want to sign out?"
         }
     }
 }

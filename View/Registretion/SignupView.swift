@@ -1,9 +1,13 @@
 import Foundation
+import FirebaseFirestoreInternal
+import FirebaseDatabase
+import FirebaseAuth
 import SwiftUI
 internal import CoreData
+import FirebaseCore
 
-struct SignupView: View {
-    
+struct SignupView: View, AuthenticationViewModel {
+        
     @State private var signupEmailField: String = ""
     @State private var signupUsernameField: String = ""
     @State private var signupPasswordField: String = ""
@@ -42,11 +46,11 @@ struct SignupView: View {
         return signupUsernameField.count < 5
     }
     
-    private var changingButtonColor: Color {
+    internal var changingButtonColor: Color {
         return fullFormIsValid ? Color.blue : Color.gray
     }
     
-    private var additionalEmailTextFieldWarning: String {
+    var additionalTextFieldWarning: String {
         while usernameFieldIsValid {
             return "Must be more than 4 characters."
         }
@@ -54,195 +58,215 @@ struct SignupView: View {
     }
 
     var body: some View {
-            ZStack {
-                Image("background")
-                VStack {
-                    Text("Welcome!")
-                        .font(.largeTitle)
+        ZStack {
+            Image("background")
+            VStack {
+                Text("Welcome!")
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.leading, -78)
+                Text("enjoy your time <3")
+                    .font(.title3)
+                    .padding(.leading, -78)
+            }
+            .foregroundStyle(Color.white)
+            .frame(alignment: .leadingFirstTextBaseline)
+            .padding(.bottom, 720)
+            .padding(.leading, -100)
+            
+            HStack() {
+                VStack(alignment: .center) {
+                    Text("Sign Up")
                         .bold()
-                        .padding(.leading, -78)
-                    Text("enjoy your time <3")
-                        .font(.title3)
-                        .padding(.leading, -78)
-                }
-                .foregroundStyle(Color.white)
-                .frame(alignment: .leadingFirstTextBaseline)
-                .padding(.bottom, 720)
-                .padding(.leading, -100)
-                
-                HStack() {
-                    VStack(alignment: .center) {
-                        Text("Sign Up")
-                            .bold()
-                            .font(.title)
-                            .foregroundStyle(Color.white)
-                        
-                        TextField("Email*", text: $signupEmailField)
-                            .padding(.leading)
-                            .keyboardType(.emailAddress)
-                            .frame(width: 250, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 27)
-                                    .fill(.white)
-                                    .strokeBorder(signupEmailSelectedField ? Color.blue : Color.clear, lineWidth: 2)
-                            )
-                            .foregroundStyle(Color.black)
-                            .cornerRadius(50)
-                            .padding(.top, 3)
-                            .clipShape(RoundedRectangle(cornerRadius: 17))
-                            .focused($signupEmailSelectedField)
-                        
-                        TextField("Username*", text: $signupUsernameField)
-                            .padding(.leading)
-                            .keyboardType(.emailAddress)
-                            .frame(width: 250, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 27)
-                                    .fill(.white)
-                                    .strokeBorder(signupUsernmaeSelectedField ? Color.blue : Color.clear, lineWidth: 2)
-                            )
-                            .foregroundStyle(Color.black)
-                            .cornerRadius(50)
-                            .padding(.top, 12)
-                            .clipShape(RoundedRectangle(cornerRadius: 17))
-                            .focused($signupUsernmaeSelectedField)
-                        
-                        Text(additionalEmailTextFieldWarning)
-                            .foregroundStyle(.white)
-                            .font(.system(size: 14))
-                            .padding(.leading, -40)
-                        
-                        SecureField("Password*", text: $signupPasswordField)
-                            .padding(.leading)
-                            .frame(width: 250, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 27)
-                                    .fill(.white)
-                                    .strokeBorder(signupPasswordSelectedField ? Color.blue : Color.clear, lineWidth: 2)
-                            )
-                            .foregroundStyle(Color.black)
-                            .cornerRadius(50)
-                            .padding(.top, 5)
-                            .focused($signupPasswordSelectedField)
-                            .textContentType(.oneTimeCode)
-                            .padding(5)
-                        
-                        SecureField("Confirm password*", text: $signupConfirmPasswordField)
-                            .padding(.leading)
-                            .frame(width: 250, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 27)
-                                    .fill(.white)
-                                    .strokeBorder(signupPasswordConfirmSelectedField ? Color.blue : Color.clear, lineWidth: 2)
-                            )
-                            .foregroundStyle(Color.black)
-                            .cornerRadius(50)
-                            .focused($signupPasswordConfirmSelectedField)
-                            .textContentType(.oneTimeCode)
-                            .padding(10)
-                        
-                        Button("Sign up") {
-                            
-                            guard !userManagerVM.userWithEmailAlreadyExist(signupEmailField) else {
-                                userAlreadyExists = CurrencyInputError.userEmailExists
-                                signupErrorAlert = true
-                                return
-                            }
-                            guard !userManagerVM.userWithUsernameAlreadyExist(signupUsernameField) else {
-                                userAlreadyExists = CurrencyInputError.userUsernameExists
-                                signupErrorAlert = true
-                                return
-                            }
-                            
-                            let newUser = userManagerVM.createUser(email: signupEmailField,
-                                                    username: signupUsernameField,
-                                                    password: signupPasswordField,
-                                                    createdAt: Date())
-                            signupButtonClicked = true
-                            print("signup succesfull")
-                            
-                        }
-                        .alert(userAlreadyExists.localizedDescription,
-                               isPresented: $signupErrorAlert) {
-                            
-                        } message: {
-                            Text(userAlreadyExists.errorDescription)
-                        }
-                        .frame(maxWidth: 250, maxHeight: 40)
+                        .font(.title)
                         .foregroundStyle(Color.white)
-                        .background(changingButtonColor)
+                    
+                    TextField("Email*", text: $signupEmailField)
+                        .padding(.leading)
+                        .keyboardType(.emailAddress)
+                        .frame(width: 250, height: 40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 27)
+                                .fill(.white)
+                                .strokeBorder(signupEmailSelectedField ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .foregroundStyle(Color.black)
                         .cornerRadius(50)
-                        .padding(.top, 30)
-                        .disabled(!fullFormIsValid)
-                        .fullScreenCover(isPresented: $signupButtonClicked) {
-                            LoginView()
-                        }
-                        
-                        Button() {
-                            
-                        } label: {
-                            HStack() {
-                                Image("Google_logo")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .opacity(0.8)
-                                    .frame(width: 24, height: 24)
-                                Text("Sign up via Google")
-                                    .foregroundStyle(.black.opacity(0.8))
-                                    .transition(.opacity)
-                                    .lineLimit(1)
-                            }
-                        }
-                        .frame(maxWidth: 250, maxHeight: 40)
-                        .background(Color.white)
+                        .padding(.top, 3)
+                        .clipShape(RoundedRectangle(cornerRadius: 17))
+                        .focused($signupEmailSelectedField)
+                    
+                    TextField("Username*", text: $signupUsernameField)
+                        .padding(.leading)
+                        .keyboardType(.emailAddress)
+                        .frame(width: 250, height: 40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 27)
+                                .fill(.white)
+                                .strokeBorder(signupUsernmaeSelectedField ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .foregroundStyle(Color.black)
+                        .cornerRadius(50)
+                        .padding(.top, 12)
+                        .clipShape(RoundedRectangle(cornerRadius: 17))
+                        .focused($signupUsernmaeSelectedField)
+                    
+                    Text(additionalTextFieldWarning)
+                        .foregroundStyle(.white)
+                        .font(.system(size: 14))
+                        .padding(.leading, -40)
+                    
+                    SecureField("Password*", text: $signupPasswordField)
+                        .padding(.leading)
+                        .frame(width: 250, height: 40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 27)
+                                .fill(.white)
+                                .strokeBorder(signupPasswordSelectedField ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .foregroundStyle(Color.black)
                         .cornerRadius(50)
                         .padding(.top, 5)
+                        .focused($signupPasswordSelectedField)
+                        .textContentType(.oneTimeCode)
+                        .padding(5)
+                    
+                    SecureField("Confirm password*", text: $signupConfirmPasswordField)
+                        .padding(.leading)
+                        .frame(width: 250, height: 40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 27)
+                                .fill(.white)
+                                .strokeBorder(signupPasswordConfirmSelectedField ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .foregroundStyle(Color.black)
+                        .cornerRadius(50)
+                        .focused($signupPasswordConfirmSelectedField)
+                        .textContentType(.oneTimeCode)
+                        .padding(10)
+                    
+                    Button("Sign up") {
+                        
+                        // MARK: - Exception Handles for Core Data
+                        //    guard !userManagerVM.userWithEmailAlreadyExist(signupEmailField) else {
+                        //      userAlreadyExists = CurrencyInputError.userEmailExists
+                        //      signupErrorAlert = true
+                        //      return
+                        //    }
+                        //    guard !userManagerVM.userWithUsernameAlreadyExist(signupUsernameField) else {
+                        //      userAlreadyExists = CurrencyInputError.userUsernameExists
+                        //      signupErrorAlert = true
+                        //      return
+                        //    }
+                        
+                        Auth.auth().createUser(withEmail: signupEmailField, password: signupPasswordField) { authResult, error in
+                            if let error = error {
+                                print("DEBUG: Failed to create user with error: \(error.localizedDescription)")
+                                return
+                            }
+                            guard let uid = authResult?.user.uid else { return }
+                            let value = ["email": signupEmailField,
+                                         "username": signupUsernameField,
+                                         "password": signupPasswordField,
+                                         "createdAt": Date().timeIntervalSince1970
+                                        ]
+                            
+                            Database.database().reference().child("Users").child(uid).updateChildValues(value) { error, _ in
+                                
+                                print("DEBUG: Successfully created user")
+                                signupButtonClicked = true
+                            }
+                        }
+                        
+                        // MARK: - Creating user inside Core Data
+                        //    let newUser = userManagerVM.createUser(email: signupEmailField,
+                        //                                           username: signupUsernameField,
+                        //                                           password: signupPasswordField,
+                        //                                           createdAt: Date())
+                        //    signupButtonClicked = true
+                        
                     }
+                    .alert(userAlreadyExists.localizedDescription,
+                           isPresented: $signupErrorAlert) {
+                        
+                    } message: {
+                        Text(userAlreadyExists.errorDescription)
+                    }
+                    .frame(maxWidth: 250, maxHeight: 40)
+                    .foregroundStyle(Color.white)
+                    .background(changingButtonColor)
+                    .cornerRadius(50)
                     .padding(.top, 30)
-                    .padding(.bottom, 80)
-                    
-                }
-                .frame(maxWidth: 350)
-                .background(.black.opacity(0.3))
-                .cornerRadius(50)
-                
-                HStack(alignment: .center) {
-                    Text("Already have an account?")
-                        .foregroundStyle(.white)
-                        .font(.system(size: 15))
-                    
-                    Button("Log in") {
-                        loginButtonClicked.toggle()
-                    }
-                    .fullScreenCover(isPresented: $loginButtonClicked) {
+                    .disabled(!fullFormIsValid)
+                    .fullScreenCover(isPresented: $signupButtonClicked) {
                         LoginView()
                     }
-                }
-                .font(.system(size: 15))
-                .padding(.top, 450)
-                
-                Button() {
                     
-                } label: {
-                    HStack(alignment: .bottom) {
-                        Link(destination: URL(string:"https://www.linkedin.com/in/kyrylo-prykhodchenko-a748b2243/")!) {
-                            Image("linkedin_logo")
+                    Button() {
+                        
+                    } label: {
+                        HStack() {
+                            Image("Google_logo")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 15, height: 15)
-                                .foregroundStyle(.white)
-                                .background(.blue)
-                            Text("Author")
-                                .foregroundStyle(.white)
-                                .font(.system(size: 15))
+                                .opacity(0.8)
+                                .frame(width: 24, height: 24)
+                            Text("Sign up via Google")
+                                .foregroundStyle(.black.opacity(0.8))
+                                .transition(.opacity)
+                                .lineLimit(1)
                         }
                     }
+                    .frame(maxWidth: 250, maxHeight: 40)
+                    .background(Color.white)
+                    .cornerRadius(50)
+                    .padding(.top, 5)
                 }
-                .frame(maxWidth: 80, maxHeight: 22)
-                .background(.black.opacity(0.3))
-                .cornerRadius(50)
-                .padding(.top, 755)
-                .padding(.leading, 280)
+                .padding(.top, 30)
+                .padding(.bottom, 80)
+                
+            }
+            .frame(maxWidth: 350)
+            .background(.black.opacity(0.3))
+            .cornerRadius(50)
+            
+            HStack(alignment: .center) {
+                Text("Already have an account?")
+                    .foregroundStyle(.white)
+                    .font(.system(size: 15))
+                
+                Button("Log in") {
+                    loginButtonClicked.toggle()
+                }
+                .fullScreenCover(isPresented: $loginButtonClicked) {
+                    LoginView()
+                }
+            }
+            .font(.system(size: 15))
+            .padding(.top, 450)
+            
+            Button() {
+                
+            } label: {
+                HStack(alignment: .bottom) {
+                    Link(destination: URL(string:"https://www.linkedin.com/in/kyrylo-prykhodchenko-a748b2243/")!) {
+                        Image("linkedin_logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 15, height: 15)
+                            .foregroundStyle(.white)
+                            .background(.blue)
+                        Text("Author")
+                            .foregroundStyle(.white)
+                            .font(.system(size: 15))
+                    }
+                }
+            }
+            .frame(maxWidth: 80, maxHeight: 22)
+            .background(.black.opacity(0.3))
+            .cornerRadius(50)
+            .padding(.top, 755)
+            .padding(.leading, 280)
         }
     }
 }
