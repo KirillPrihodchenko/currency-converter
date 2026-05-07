@@ -6,7 +6,7 @@ import SwiftUI
 internal import CoreData
 import FirebaseCore
 
-struct SignupView: View, AuthenticationViewModel {
+struct SignupView: View {
         
     @State private var signupEmailField: String = ""
     @State private var signupUsernameField: String = ""

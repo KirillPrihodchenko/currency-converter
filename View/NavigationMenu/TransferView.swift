@@ -24,6 +24,7 @@ struct TransferView: View {
     @State private var alertAttention: AlertAttention = .clarify
     @State private var clearAlert: Bool = false
     private var buttonCalculation = Calculation()
+    @State private var statusNotification: Status = .success()
     
     init() {
         let context = PersistenceController.shared.container.viewContext
@@ -116,8 +117,8 @@ struct TransferView: View {
                         .opacity(0.55)
                         .cornerRadius(28))
                 
-                VStack(spacing: 20) {
-                    HStack(spacing: 20) {
+                VStack(alignment: .center, spacing: 20) {
+                    HStack(alignment: .center, spacing: 20) {
                         Button("Calculate") {
                             
                             guard let from = firstSelectedCurrency, let to = secondSelectedCurrency else {
@@ -147,7 +148,7 @@ struct TransferView: View {
                                                                                       amount: Decimal(string: firstFieldAmount) ?? 0,
                                                                                       result: Decimal(string: secondFieldAmount) ?? 0,
                                                                                       user: user,
-                                                                                      status: "Success",
+                                                                                      status: statusNotification.name,
                                                                                       createdAt: Date()) {
                                 }
                             }
@@ -172,7 +173,7 @@ struct TransferView: View {
                                 isPresented: $clearAlert,
                                 presenting: alertAttention) {alertAttention in
                             
-                            Button("Cancel", role: .cancel) { }.foregroundStyle(Color(.red))
+                            Button("Cancel", role: .cancel) { }
                             Button("Confirm", role: .confirm) {
                                 resetFields()
                             }
@@ -191,7 +192,7 @@ struct TransferView: View {
                         Button("Fetch") {
                             currency.fetchData()
                         }
-                        .frame(maxWidth: 150, maxHeight: 50)
+                        .frame(maxWidth: 150, maxHeight: 50, alignment: .center)
                         .font(.title .bold())
                         .foregroundColor(.black)
                         .background(Color(.white))

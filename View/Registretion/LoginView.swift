@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 internal import CoreData
 
-struct LoginView: View, AuthenticationViewModel {
+struct LoginView: View {
     
     @State private var loginIdentifierField: String = ""
     @State private var loginPasswordField: String = ""

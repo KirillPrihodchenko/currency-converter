@@ -10,7 +10,7 @@ enum AlertAttention: String, CaseIterable {
         case .clarify:
             return "Are you sure?"
         case .signout:
-            return "Are you sure?"
+                   return "Are you sure?"
         }
     }
 }
@@ -22,7 +22,7 @@ extension AlertAttention {
         case .clarify:
             return "Are you sure you want to clear text fields and currenccies?"
         case .signout:
-            return "Are you sure you want to sign out?"
+                    return "Are you sure you want to sign out?"
         }
     }
 }

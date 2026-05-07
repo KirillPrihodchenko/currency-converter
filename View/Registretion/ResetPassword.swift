@@ -12,8 +12,15 @@ struct ResetPassword: View {
                resetEmailField.contains("@")
     }
     
-    private var changingButtonColor: Color {
+    internal var changingButtonColor: Color {
         return fullFormIsValid ? Color.blue : Color.gray
+    }
+    
+    var additionalTextFieldWarning: String {
+        while fullFormIsValid {
+            return "Must include valid email"
+        }
+        return ""
     }
     
     var body: some View {
