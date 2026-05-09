@@ -147,7 +147,7 @@ struct SignupView: View {
                     
                     Button("Sign up") {
                         
-                        // MARK: - Exception Handles for Core Data
+                        // MARK: - Exception Handles(Core Data)
                         //    guard !userManagerVM.userWithEmailAlreadyExist(signupEmailField) else {
                         //      userAlreadyExists = CurrencyInputError.userEmailExists
                         //      signupErrorAlert = true
@@ -178,7 +178,7 @@ struct SignupView: View {
                             }
                         }
                         
-                        // MARK: - Creating user inside Core Data
+                        // MARK: - Create user(Core Data)
                         //    let newUser = userManagerVM.createUser(email: signupEmailField,
                         //                                           username: signupUsernameField,
                         //                                           password: signupPasswordField,

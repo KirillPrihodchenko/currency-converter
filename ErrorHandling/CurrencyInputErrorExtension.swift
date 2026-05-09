@@ -40,7 +40,7 @@ extension CurrencyInputError {
             case .userUsernameExists:
                 return "User with username this already exists"
             case .userNotFound:
-                return "Username or password are incorrect"
+                return "Username or password is incorrect"
         }
     }
 }

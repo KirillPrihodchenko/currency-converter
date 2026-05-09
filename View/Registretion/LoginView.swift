@@ -1,6 +1,8 @@
 import Foundation
+import FirebaseAuth
 import SwiftUI
 internal import CoreData
+import FirebaseCore
 
 struct LoginView: View {
     
@@ -10,20 +12,20 @@ struct LoginView: View {
     @State private var resetPasswordClicked: Bool = false
     @FocusState private var loginEmailSelectedField: Bool
     @FocusState private var loginPasswordSelectedField: Bool
-    private let userManagerVM: UserManager
+    //private let userManagerVM: UserManager
     @State private var loginWithCorrectCredentials: Bool = false
     @State private var userNotFound: CurrencyInputError = .userNotFound
     @State private var loginErrorAlert: Bool = false
+    @State private var loginAsGuestAccount: Bool = false
     
-    
-    init() {
-        let context = PersistenceController.shared.container.viewContext
-        userManagerVM = UserManager(context: context)
-    }
+//    init() {
+//        let context = PersistenceController.shared.container.viewContext
+//        userManagerVM = UserManager(context: context)
+//    }
     
     private var loginCredentialsAreValid: Bool {
         return loginIdentifierField.count > 4 &&
-                !loginPasswordField.isEmpty
+        !loginPasswordField.isEmpty
     }
     
     private var identifierdFieldIsValid: Bool {
@@ -42,181 +44,210 @@ struct LoginView: View {
     }
     
     var body: some View {
-            ZStack {
-                Image("background")
-                VStack {
-                    Text("Welcome back!")
-                        .font(.largeTitle)
+        ZStack {
+            Image("background")
+            VStack {
+                Text("Welcome back!")
+                    .font(.largeTitle)
+                    .bold()
+                Text("enjoy your time <3")
+                    .font(.title3)
+                    .padding(.leading, -78)
+            }
+            .foregroundStyle(Color.white)
+            .frame(alignment: .leadingFirstTextBaseline)
+            .padding(.bottom, 720)
+            .padding(.leading, -100)
+            
+            HStack() {
+                VStack(alignment: .center) {
+                    Text("Log In")
                         .bold()
-                    Text("enjoy your time <3")
-                        .font(.title3)
-                        .padding(.leading, -78)
-                }
-                .foregroundStyle(Color.white)
-                .frame(alignment: .leadingFirstTextBaseline)
-                .padding(.bottom, 720)
-                .padding(.leading, -100)
-                
-                HStack() {
-                    VStack(alignment: .center) {
-                        Text("Log In")
-                            .bold()
-                            .font(.title)
-                            .foregroundStyle(Color.white)
-                        
-                        TextField("Username or Email*", text: $loginIdentifierField)
-                            .padding(.leading)
-                            .keyboardType(.emailAddress)
-                            .frame(width: 250, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 27)
-                                    .fill(.white)
-                                    .strokeBorder(loginEmailSelectedField ? Color.blue : Color.clear, lineWidth: 2)
-                            )
-                            .foregroundStyle(Color.black)
-                            .cornerRadius(50)
-                            .padding(.top, 5)
-                            .clipShape(RoundedRectangle(cornerRadius: 17))
-                            .focused($loginEmailSelectedField)
-                        
-                        Text(additionalTextFieldWarning)
+                        .font(.title)
+                        .foregroundStyle(Color.white)
+                    
+                    TextField("Username or Email*", text: $loginIdentifierField)
+                        .padding(.leading)
+                        .keyboardType(.emailAddress)
+                        .frame(width: 250, height: 40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 27)
+                                .fill(.white)
+                                .strokeBorder(loginEmailSelectedField ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .foregroundStyle(Color.black)
+                        .cornerRadius(50)
+                        .padding(.top, 5)
+                        .clipShape(RoundedRectangle(cornerRadius: 17))
+                        .focused($loginEmailSelectedField)
+                    
+                    Text(additionalTextFieldWarning)
+                        .foregroundStyle(.white)
+                        .font(.system(size: 14))
+                        .padding(.leading, -40)
+                    
+                    SecureField("Password*", text: $loginPasswordField)
+                        .padding(.leading)
+                        .frame(width: 250, height: 40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 27)
+                                .fill(.white)
+                                .strokeBorder(loginPasswordSelectedField ? Color.blue : Color.clear, lineWidth: 2)
+                        )
+                        .foregroundStyle(Color.black)
+                        .cornerRadius(50)
+                        .padding(.top, 5)
+                        .focused($loginPasswordSelectedField)
+                        .padding(5)
+                    
+                    HStack() {
+                        Text("Forget your password?")
                             .foregroundStyle(.white)
                             .font(.system(size: 14))
-                            .padding(.leading, -40)
-                        
-                        SecureField("Password*", text: $loginPasswordField)
-                            .padding(.leading)
-                            .frame(width: 250, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 27)
-                                    .fill(.white)
-                                    .strokeBorder(loginPasswordSelectedField ? Color.blue : Color.clear, lineWidth: 2)
-                            )
-                            .foregroundStyle(Color.black)
-                            .cornerRadius(50)
-                            .padding(.top, 5)
-                            .focused($loginPasswordSelectedField)
-                            .padding(5)
-                        
-                        HStack() {
-                            Text("Forget your password?")
-                                .foregroundStyle(.white)
-                                .font(.system(size: 14))
-                                .transition(.opacity)
-                            Button("Reset") {
-                                resetPasswordClicked.toggle()
-                            }
-                            .font(.system(size: 14))
-                            .fullScreenCover(isPresented: $resetPasswordClicked) {
-                                ResetPassword()
-                            }
+                            .transition(.opacity)
+                        Button("Reset") {
+                            resetPasswordClicked.toggle()
                         }
-                        .padding(.leading, -55)
+                        .font(.system(size: 14))
+                        .fullScreenCover(isPresented: $resetPasswordClicked) {
+                            ResetPassword()
+                        }
+                    }
+                    .padding(.leading, -55)
+                    
+                    
+                    Button("Log In") {
                         
-                        Button("Log In") {
-                            
-                            guard userManagerVM.userWithEmailAlreadyExist(loginIdentifierField) ||
-                                    userManagerVM.userWithUsernameAlreadyExist(loginIdentifierField) else {
-                            
+                        //MARK: -Exception Handles & Authenticator(Core Data)
+                        //                            guard userManagerVM.userWithEmailAlreadyExist(loginIdentifierField) ||
+                        //                                    userManagerVM.userWithUsernameAlreadyExist(loginIdentifierField) else {
+                        //
+                        //                                loginErrorAlert = true
+                        //                                return
+                        //                            }
+                        //
+                        //                                if let _ = userManagerVM.readUserByCredentials(loginIdentifierField, loginPasswordField) {
+                        //                                    loginWithCorrectCredentials = true
+                        //                                    print("login succesfull")
+                        //                                }
+                        
+                        Auth.auth().signIn(withEmail: loginIdentifierField, password: loginPasswordField) {
+                            authResult, error in
+                    
+                            if let error = error {
+                                print("DEBUG: Failed to sign in user with error: \(error.localizedDescription)")
                                 loginErrorAlert = true
                                 return
                             }
-                                
-                                if let _ = userManagerVM.readUserByCredentials(loginIdentifierField, loginPasswordField) {
-                                    loginWithCorrectCredentials = true
-                                    print("login succesfull")
-                                }
-                        }
-                        .alert(userNotFound.localizedDescription,
-                               isPresented: $loginErrorAlert) {
-                            
-                        } message: {
-                            Text(userNotFound.errorDescription)
-                        }
-                        .frame(maxWidth: 250, maxHeight: 40)
-                        .foregroundStyle(Color.white)
-                        .background(changingButtonColor)
-                        .cornerRadius(50)
-                        .padding(.top, 30)
-                        .disabled(!loginCredentialsAreValid)
-                        .fullScreenCover(isPresented: $loginWithCorrectCredentials) {
-                            NavigationMenu()
-                        }
-                        
-                        Button() {
-                            
-                        } label: {
-                            HStack() {
-                                Image("Google_logo")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .opacity(0.8)
-                                    .frame(width: 24, height: 24)
-                                Text("Login via Google")
-                                    .foregroundStyle(.black.opacity(0.8))
-                                    .transition(.opacity)
-                                    .lineLimit(1)
+                            if Auth.auth().currentUser?.uid != nil {
+                                print("DEBUG: Successfully logged in user")
+                                loginWithCorrectCredentials = true
                             }
                         }
-                        .frame(maxWidth: 250, maxHeight: 40)
-                        .background(Color.white)
-                        .cornerRadius(50)
-                        .padding(.top, 5)
-                        
-                        Button("Log In as Guest") { }
-                            .frame(maxWidth: 250, maxHeight: 40)
-                            .foregroundStyle(Color.white)
-                            .background(.blue)
-                            .cornerRadius(50)
-                            .padding(.top, 5)
-                        
                     }
+                    .alert(userNotFound.localizedDescription,
+                           isPresented: $loginErrorAlert) {
+                        
+                    } message: {
+                        Text(userNotFound.errorDescription)
+                    }
+                    .frame(maxWidth: 250, maxHeight: 40)
+                    .foregroundStyle(Color.white)
+                    .background(changingButtonColor)
+                    .cornerRadius(50)
                     .padding(.top, 30)
-                    .padding(.bottom, 130)
-                    
-                }
-                .frame(maxWidth: 350)
-                .background(.black.opacity(0.3))
-                .cornerRadius(50)
-                
-                HStack(alignment: .center) {
-                    Text("Still don't have an account?")
-                        .foregroundStyle(.white)
-                        .font(.system(size: 15))
-                    
-                    Button("Sign Up") {
-                        signupClicked.toggle()
+                    .disabled(!loginCredentialsAreValid)
+                    .fullScreenCover(isPresented: $loginWithCorrectCredentials) {
+                        NavigationMenu()
                     }
-                    .fullScreenCover(isPresented: $signupClicked) {
-                        SignupView()
-                    }
-                }
-                .font(.system(size: 15))
-                .padding(.top, 350)
-                
-                Button() {
                     
-                } label: {
-                    HStack(alignment: .bottom) {
-                        Link(destination: URL(string:"https://www.linkedin.com/in/kyrylo-prykhodchenko-a748b2243/")!) {
-                            Image("linkedin_logo")
+                    Button() {
+                    } label: {
+                        HStack() {
+                            Image("Google_logo")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 15, height: 15)
-                                .foregroundStyle(.white)
-                                .background(.blue)
-                            Text("Author")
-                                .foregroundStyle(.white)
-                                .font(.system(size: 15))
-                            
+                                .opacity(0.8)
+                                .frame(width: 24, height: 24)
+                            Text("Login via Google")
+                                .foregroundStyle(.black.opacity(0.8))
+                                .transition(.opacity)
+                                .lineLimit(1)
                         }
                     }
+                    .frame(maxWidth: 250, maxHeight: 40)
+                    .background(Color.white)
+                    .cornerRadius(50)
+                    .padding(.top, 5)
+                    
+                    Button("Log In as Guest") {
+                        
+                        Auth.auth().signInAnonymously() { authResult, error in
+                            
+                            if let error = error {
+                                print("DEBUG: Failed to signup anonymously with error: \(error.localizedDescription)")
+                                return
+                            }
+                            print("DEBUG: Signup anonymous user successfully")
+                            loginAsGuestAccount = true
+                        }
+                    }
+                    .fullScreenCover(isPresented: $loginAsGuestAccount) {
+                        NavigationMenu()
+                    }
+                    .frame(maxWidth: 250, maxHeight: 40)
+                    .foregroundStyle(Color.white)
+                    .background(.blue)
+                    .cornerRadius(50)
+                    .padding(.top, 5)
+                    
                 }
-                .frame(maxWidth: 80, maxHeight: 22)
-                .background(.black.opacity(0.3))
-                .cornerRadius(50)
-                .padding(.top, 755)
-                .padding(.leading, 280)
+                .padding(.top, 30)
+                .padding(.bottom, 130)
+                
+            }
+            .frame(maxWidth: 350)
+            .background(.black.opacity(0.3))
+            .cornerRadius(50)
+            
+            HStack(alignment: .center) {
+                Text("Still don't have an account?")
+                    .foregroundStyle(.white)
+                    .font(.system(size: 15))
+                
+                Button("Sign Up") {
+                    signupClicked.toggle()
+                }
+                .fullScreenCover(isPresented: $signupClicked) {
+                    SignupView()
+                }
+            }
+            .font(.system(size: 15))
+            .padding(.top, 350)
+            
+            Button() {
+                
+            } label: {
+                HStack(alignment: .bottom) {
+                    Link(destination: URL(string:"https://www.linkedin.com/in/kyrylo-prykhodchenko-a748b2243/")!) {
+                        Image("linkedin_logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 15, height: 15)
+                            .foregroundStyle(.white)
+                            .background(.blue)
+                        Text("Author")
+                            .foregroundStyle(.white)
+                            .font(.system(size: 15))
+                        
+                    }
+                }
+            }
+            .frame(maxWidth: 80, maxHeight: 22)
+            .background(.black.opacity(0.3))
+            .cornerRadius(50)
+            .padding(.top, 755)
+            .padding(.leading, 280)
         }
     }
 }

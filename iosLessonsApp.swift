@@ -16,12 +16,13 @@ struct iosLessonsApp: App {
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     let persistenceController = PersistenceController.shared
+    @StateObject private var session = SessionManager()
     
     var body: some Scene {
         
         WindowGroup {
-            LoginView()
-            NavigationMenu()
+            RootSessionView()
+                .environmentObject(session)
             
         }
         .environment(\.managedObjectContext, persistenceController.container.viewContext)
